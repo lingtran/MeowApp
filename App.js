@@ -10,7 +10,7 @@ import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
 import VideoPlayer from 'react-native-video';
 
-export default class App extends React.Component {
+export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -27,15 +27,25 @@ export default class App extends React.Component {
     this.effect = this.effect.bind(this)
   }
   
+  componentDidMount() {
+    this.effect();
+}
+
+  componentDidUpdate() {
+    this.player.state.showPoster = true
+  }
+
+  componentWillUnmount() {
+    this.onEnd()
+  }
+
   effect() {
     this.state.seekTo === 0 || this.state.seekTo && this.player && this.player.seek(this.state.seekTo)
     this.state.seekTo === 0 || this.state.seekTo && this.setState({seekingComplete: false})
   }
 
-  load(data) {
-    this.setState({
-      duration: data.duration ? data.duration : 1
-    })
+  onLoad = (data) => {
+    this.setState({duration: data.duration ? data.duration : 1})
   }
 
   onEnd() {
@@ -49,7 +59,7 @@ export default class App extends React.Component {
     if(!this.state.seekingComplete) {
         return;
     }
-    this.props.onCurrentTimeChange(currentTime, seekableDuration)
+    this.onCurrentTimeChange(currentTime, seekableDuration)
   }
 
   onSeek = (data) => {
@@ -73,16 +83,10 @@ export default class App extends React.Component {
     
     const DEFAULT_CONTENT_IMAGE = 'https://assets.democracynow.org/assets/default_content_image-354f4555cc64afadc730d64243c658dd0af1f330152adcda6c4900cb4a26f082.jpg'
     
-    const textTracks = {
-      title: 'English',
-      language: 'en',
-      type: 'text/vtt',
-      uri: 'https://staging.democracynow.org/resources/captions/shows/6289/English.vtt'
-    }
     
     const selectedTextTrack = {type: 'title', value: 'English'}
     
-    const fullShowUri = 'https://publish.dvlabs.com/democracynow/audio-m4a/dn2020-0214.m4a?start=000&end=3600'
+    const fullShowUri = 'https://publish.dvlabs.com/democracynow/audio-m4a/dn2020-0214.m4a'
     const headlinesUri = 'https://publish.dvlabs.com/democracynow/audio-m4a/dn2020-0214.m4a?start=1217&end=2540'
     const storyUri = 'https://publish.dvlabs.com/democracynow/audio-m4a/dn2020-0214.m4a?start=891&end=1217'
 
@@ -90,28 +94,26 @@ export default class App extends React.Component {
       <View style={styles.container}>
         <Text> (=^-ω-^=) </Text>
         <VideoPlayer
-            audioOnly={true}
-            ref={(ref) => {
-              this.player = ref}}
-            poster={DEFAULT_CONTENT_IMAGE}
-            source={{uri:headlinesUri}}
-            style={styles.video_player}
-            textTracks={textTracks}
-            selectedTextTrack={selectedTextTrack}
-            rate={this.state.rate}
-            paused={this.paused}
-            volume={this.state.volume}
-            muted={this.state.muted}
-            resizeMode="contain"
-            onProgress={this.onProgress}
-            onSeek={this.onSeek}
-            onLoad={this.onLoad}
-            onEnd={this.onEnd}
-            playInBackground={playInBackground}
-            playWhenInactive={true}
-          />
+          audioOnly={true}
+          ref={(ref) => {
+            this.player = ref}}
+          poster={DEFAULT_CONTENT_IMAGE}
+          source={{uri: fullShowUri}}
+          style={styles.video_player}
+          textTracks={[]}
+          selectedTextTrack={selectedTextTrack}
+          rate={this.state.rate}
+          volume={this.state.volume}
+          muted={this.state.muted}
+          resizeMode="contain"
+          onProgress={this.onProgress}
+          onSeek={this.onSeek}
+          onLoad={this.onLoad}
+          onEnd={this.onEnd}
+          playInBackground={playInBackground}
+          playWhenInactive={true}
+        />
       </View>
-      
     );
   }
 }
